@@ -26,5 +26,63 @@ You can include the `PDOQueryBuilder` class in your project manually or via Comp
    - Save the `PDOQueryBuilder.php` file to your project's directory.
 
 2. **Include the Class in Your Project:**
-   ```php
+```php
    require_once 'path/to/PDOQueryBuilder.php';
+   ```
+3. **Have the PDO initiated**
+```php   
+    // Initialize PDO
+    $pdo = new PDO('mysql:host=localhost;dbname=your_db;charset=utf8mb4', 'username', 'password', [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    ]);
+   ```
+    
+## Minimal usage
+```php
+    // Build and execute an UPDATE query
+    PDOQueryBuilder::instance($pdo)
+        ->add(
+            'UPDATE users SET name = :name, email = :email WHERE id = :id',
+            [
+                ':name'  => 'John Doe',
+                ':email' => 'john.doe@example.com',
+                ':id'    => 42,
+            ]
+        )
+        ->execute();
+     echo "User updated successfully.";
+```
+
+## Step-by-Step Construction
+   ```php
+       $query = new PDOQueryBuilder($pdo);
+       $query->add('UPDATE users SET');
+       $query->add('name = :name', 'John Doe');
+       $query->add(', email = :email', 'john.doe@example.com');
+       $query->add('WHERE id = :id', 42);
+       $stmt = $query->execute();
+       echo "User updated successfully.";
+```
+
+## Reusing the Prepared Statement
+```php
+$queryBuilder = PDOQueryBuilder::instance($pdo)
+        ->add('INSERT INTO products (name, price, quantity)')
+        ->add('VALUES (:name, :price, :quantity)', [
+            ':name'     => 'Laptop',
+            ':price'    => 999.99,
+            ':quantity' => 10,
+        ])
+        ->execute();
+
+    // Reuse the prepared statement for another insert
+    $queryBuilder->execute([
+        ':name'     => 'Smartphone',
+        ':price'    => 499.99,
+        ':quantity' => 25,
+    ]);
+
+    echo "Products inserted successfully.";
+```
+
+
